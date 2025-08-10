@@ -1,0 +1,9 @@
+# Environment variables
+.env
+
+# Python virtual environment
+anyclock-env/
+
+# Misc python stuff
+.pycache
+__pycache__/
