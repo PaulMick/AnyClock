@@ -7,3 +7,6 @@ anyclock-env/
 # Misc python stuff
 .pycache
 __pycache__/
+
+# VSCode stuff
+.vscode
