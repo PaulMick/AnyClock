@@ -1,4 +1,5 @@
 {
     "mode_id": "clock_mode",
-    "night": false
+    "night": false,
+    "in_menu": false
 }

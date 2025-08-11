@@ -23,7 +23,11 @@ class ClockMode:
 
         self.weather_code = 0
 
-    def update(self, input: list[int]) -> None:
+        self.in_settings = False
+
+    def update(self, pressed: list[int], held: list[int]) -> bool:
+        # Handle settings
+
         # Update current local time
         local_time = time.localtime(time.time())
 
