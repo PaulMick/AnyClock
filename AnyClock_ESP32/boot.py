@@ -1,1 +1,1 @@
-# boot.py -- run on boot-up
+print("Starting boot.py")

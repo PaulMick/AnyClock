@@ -1,1 +1,1 @@
-# main.py -- put your code here!
+print("Starting main.py")
