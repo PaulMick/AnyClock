@@ -1,0 +1,26 @@
+import time
+
+class ClockMode:
+    def __init__(self) -> None:
+        self.year: int = 0
+        self.month: int = 0
+        self.mday: int = 0
+        self.wday: int = 0
+        self.hour: int = 0
+        self.minute: int = 0
+        self.second: int = 0
+
+        self.am: bool = True
+        self.pm: bool = False
+
+    def update(self) -> None:
+        # Update current local time
+        local_time = time.localtime(time.time())
+
+        self.year = local_time[0]
+        self.month = local_time[1]
+        self.mday = local_time[2]
+        self.hour = local_time[3]
+        self.minute = local_time[4]
+        self.second = local_time[5]
+        self.wday = local_time[6]
