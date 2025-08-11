@@ -43,8 +43,9 @@ def run() -> None:
         if current_state["in_menu"]:
             #TODO
             pass
-
         # Update current mode
+        else:
+            modes[current_state["mode_id"]].update(pressed, inputs)
 
 def get_input() -> tuple[int]:
     return (menu_pin.value(), select_pin.value(), up_pin.value(), down_pin.value(), left_pin.value(), right_pin.value())
