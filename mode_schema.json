@@ -1,4 +1,7 @@
 {
-    "id": "clock_mode",
-    "display_name": "Clock Mode"
+    "id": "example_mode",
+    "display_name": "Example Mode",
+    "state": {
+        
+    }
 }

@@ -1,0 +1,7 @@
+# Define inputs ids
+INPUT_SELECT = 0
+INPUT_MENU = 1
+INPUT_UP = 2
+INPUT_DOWN = 3
+INPUT_LEFT = 4
+INPUT_RIGHT = 5

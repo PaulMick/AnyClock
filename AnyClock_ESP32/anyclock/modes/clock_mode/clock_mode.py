@@ -1,5 +1,8 @@
 import time
 
+# How often weather data is pulled from the API, in seconds
+WEATHER_UPDATE_PERIOD = 60
+
 class ClockMode:
     def __init__(self) -> None:
         self.year: int = 0
@@ -13,7 +16,12 @@ class ClockMode:
         self.am: bool = True
         self.pm: bool = False
 
-    def update(self) -> None:
+        self.tempf: int = 0
+        self.tempc: int = 0
+
+        self.weather_code = 0
+
+    def update(self, input: list[int]) -> None:
         # Update current local time
         local_time = time.localtime(time.time())
 

@@ -1,0 +1,18 @@
+{
+    "id": "clock_mode",
+    "display_name": "Clock Mode",
+    "state": {
+        "year": 0,
+        "month": 0,
+        "mday": 0,
+        "wday": 0,
+        "hour": 0,
+        "minute": 0,
+        "second": 0,
+        "am": true,
+        "pm": false,
+        "tempf": 0,
+        "tempc": 0,
+        "weather_code": 0
+    }
+}
