@@ -25,7 +25,7 @@ class ClockMode:
 
         self.in_settings = False
 
-    def update(self, pressed: list[int], held: list[int]) -> bool:
+    def update(self, pressed: tuple[int], held: tuple[int]) -> bool:
         # Handle settings
 
         # Update current local time

@@ -9,5 +9,5 @@ class WeatherMode:
         self.weather_code: int = 0
         self.humidity: int = 0
         
-    def update(self, pressed: list[int], held: list[int]) -> bool:
+    def update(self, pressed: tuple[int], held: tuple[int]) -> bool:
         pass
