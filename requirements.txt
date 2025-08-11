@@ -1,3 +1,4 @@
+adafruit-ampy==1.1.0
 bitarray==3.6.0
 bitstring==4.3.1
 cffi==1.17.1
@@ -11,6 +12,7 @@ mdurl==0.1.2
 pycparser==2.22
 Pygments==2.19.2
 pyserial==3.5
+python-dotenv==1.1.1
 PyYAML==6.0.2
 reedsolo==1.7.0
 rich==14.1.0

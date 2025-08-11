@@ -2,7 +2,7 @@
 .env
 
 # Python virtual environment
-anyclock-env/
+python-anyclock-env/
 
 # Misc python stuff
 .pycache
