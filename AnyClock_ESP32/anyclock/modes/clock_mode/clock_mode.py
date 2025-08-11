@@ -4,7 +4,9 @@ import time
 WEATHER_UPDATE_PERIOD = 60
 
 class ClockMode:
-    def __init__(self) -> None:
+    def __init__(self, night: bool = False) -> None:
+        self.night = night
+
         self.year: int = 0
         self.month: int = 0
         self.mday: int = 0

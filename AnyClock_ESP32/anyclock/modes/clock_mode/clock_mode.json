@@ -1,6 +1,7 @@
 {
     "id": "clock_mode",
     "display_name": "Clock Mode",
+    "night": false,
     "state": {
         "year": 0,
         "month": 0,
