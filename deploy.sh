@@ -12,3 +12,4 @@ fi
 $AMPY -p $1 put AnyClock_ESP32/main.py /main.py
 $AMPY -p $1 put AnyClock_ESP32/boot.py /boot.py
 $AMPY -p $1 put AnyClock_ESP32/anyclock /anyclock
+$AMPY -p $1 put AnyClock_ESP32/anyclock.env /anyclock.env
