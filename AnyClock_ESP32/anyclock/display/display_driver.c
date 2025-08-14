@@ -1,9 +1,10 @@
 #include <stdio.h>
-#include <freertos/Task.h>
-#include <freertos/FreeRTOS.h>
-#include <driver/i2s.h>
-#include <driver/gpio.h>
-#include <esp_rom_sys.h>
+#include "freertos/Task.h"
+#include "freertos/FreeRTOS.h"
+#include "driver/i2s.h"
+#include "driver/gpio.h"
+#include "esp_rom_sys.h"
+#include "esp_heap_caps.h"
 
 // Board dependent
 #define R1 0
@@ -27,13 +28,32 @@
 #define COLOR_DEPTH 4 // Bit depth of each of the 3 color channels
 #define SCAN_LINES 2 // 1/16 -> 2 lines are scanned at a time (1/16th of the display is scanned at a time)
 
+#define I2S_SAMPLE_RATE 2000000
 #define BASE_DELAY_US 200 // Shortest delay used for I2S
 
-// Frame pixel buffer that is continuously displayed, write here to display stuff
-uint8_t frame_buf[DISPLAY_HEIGHT][DISPLAY_WIDTH][3];
+// Double frame buffer
+uint8_t frame_buf_in[DISPLAY_HEIGHT][DISPLAY_WIDTH][3];
+uint8_t frame_buf_out[DISPLAY_HEIGHT][DISPLAY_WIDTH][3];
+// Frame buffer pointers
+uint8_t *frame_buf_in_ptr[DISPLAY_HEIGHT][DISPLAY_WIDTH][3] = frame_buf_in;
+uint8_t *frame_buf_out_ptr[DISPLAY_HEIGHT][DISPLAY_WIDTH][3] = frame_buf_out;
+// Temp pointer for swapping frame buffer pointers
+uint8_t *tmp[DISPLAY_HEIGHT][DISPLAY_WIDTH][3];
+
+// Indicator of whether the in frame buffer is completed
+int in_done = 0;
+int *in_done_ptr = &in_done;
 
 // Scanning bitplane used to correctly format row pixel data into the correct format for RGB channel PWM
 uint8_t *scan_bitplane_buf[COLOR_DEPTH];
+
+// Struct containing pointers and parameters necessary to access the in frame buffer
+struct DisplayHandle {
+    uint8_t *frame_buf_ptr[DISPLAY_WIDTH][DISPLAY_HEIGHT][3];
+    int width;
+    int height;
+    int *in_done_ptr;
+};
 
 // Initialize GPIO
 void init_gpio() {
@@ -45,18 +65,20 @@ void init_gpio() {
         .intr_type = GPIO_INTR_DISABLE
     };
     gpio_config(gpio_cfg);
+    gpio_set_level(LAT, 0);
+    gpio_set_level(OE, 1);
 }
 
 // Initialize I2S
 void init_i2s() {
     i2s_config_t i2s_cfg = {
         .mode = I2S_MODE_MASTER | I2S_MODE_TX,
-        .sample_rate = 2000000,
+        .sample_rate = I2S_SAMPLE_RATE,
         .bits_per_sample = I2S_BITS_PER_SAMPLE_8BIT,
         .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .dma_buf_count = 8,
-        .dma_buf_len = 64,
+        .dma_buf_len = 128,
         .use_apll = false,
         .intr_alloc_flags = ESP_INTR_FLAP_LEVEL1
     };
@@ -68,7 +90,7 @@ void init_i2s() {
     };
     i2s_driver_install(I2S_NUM_0, &i2s_cfg, 0, NULL);
     i2s_set_pin(I2S_NUM_0, &i2s_pin_cfg);
-    i2s_set_clk(I2S_NUM_0, 2000000, I2S_BITS_PER_SAMPLE_8BIT, I2S_CHANNEL_MONO);
+    i2s_set_clk(I2S_NUM_0, I2S_SAMPLE_RATE, I2S_BITS_PER_SAMPLE_8BIT, I2S_CHANNEL_MONO);
 }
 
 // TODO: Might not be needed???
@@ -77,6 +99,13 @@ void set_row(uint8_t row) {
     gpio_set_level(B, row & 0x02);
     gpio_set_level(C, row & 0x04);
     gpio_set_level(D, row & 0x08);
+}
+
+// Swaps the pointers to the two frame buffers
+void swap_frame_buffers() {
+    *tmp = *frame_buf_0_ptr;
+    *frame_buf_0_ptr = *frame_buf_1_ptr;
+    *frame_buf_1_ptr = *tmp;
 }
 
 /*
@@ -93,9 +122,9 @@ void prep_bitplanes(uint8_t row) {
         uint8_t *buf = scan_bitplane_buf[bit_depth];
         // Add the bit at the current bit depth from every pixel in the row to the bitplane
         for (int col = 0; col < DISPLAY_WIDTH; col ++) {
-            uint8_t r = frame_buf[row][col][0];
-            uint8_t g = frame_buf[row][col][1];
-            uint8_t b = frame_buf[row][col][2];
+            uint8_t r = *frame_buf_out_ptr[row][col][0];
+            uint8_t g = *frame_buf_out_ptr[row][col][1];
+            uint8_t b = *frame_buf_out_ptr[row][col][2];
             uint8_t rgb_bit_slice = 0;
             rgb_bit_slice |= ((r >> (7 - bit)) & 1) << 0;
             rgb_bit_slice |= ((g >> (7 - bit)) & 1) << 1;
@@ -105,6 +134,7 @@ void prep_bitplanes(uint8_t row) {
     }
 }
 
+// Render a row to the display
 void render_row(uint8_t row) {
     set_row(row);
     prep_bitplanes(row);
@@ -120,14 +150,33 @@ void render_row(uint8_t row) {
     }
 }
 
+// Task to be run by the FreeRTOS task
 void refresh_task(void *param) {
     while (1) {
+        // If the in frame buffer is ready make the buffer pointer swap
+        if (*in_done_ptr) {
+            swap_frame_buffers()
+            *in_done_ptr = 0;
+        }
+        // Display the out frame buffer
         for (uint8_t row = 0; row < (uint8_t) (DISPLAY_HEIGHT / SCAN_LINES); row ++) {
             render_row(row);
         }
     }
 }
 
+//
+struct DisplayHandle get_display_handle() {
+    struct DisplayHandle display_handle = {
+        .width = DISPLAY_WIDTH,
+        .height = DISPLAY_HEIGHT,
+        .frame_buf_ptr = frame_buf_in_ptr,
+        .in_done_ptr = in_done_ptr
+    }
+    return display_handle;
+}
+
+// Start the main display refresh cycle
 void run_refresh() {
     init_gpio();
     init_i2s();
@@ -139,9 +188,17 @@ void run_refresh() {
 
     for (int y = 0; y < DISPLAY_HEIGHT; y ++) {
         for (int x = 0; x < DISPLAY_WIDTH; x ++) {
-            frame_buf[y][x][0] = x;
-            frame_buf[y][x][1] = y;
-            frame_buf[y][x][2] = x + y;
+            *frame_buf_in[y][x][0] = x;
+            *frame_buf_in[y][x][1] = y;
+            *frame_buf_in[y][x][2] = x + y;
+        }
+    }
+
+    for (int y = 0; y < DISPLAY_HEIGHT; y ++) {
+        for (int x = 0; x < DISPLAY_WIDTH; x ++) {
+            *frame_buf_out[y][x][0] = x;
+            *frame_buf_out[y][x][1] = y;
+            *frame_buf_out[y][x][2] = x + y;
         }
     }
 
