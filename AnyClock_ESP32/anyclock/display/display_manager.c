@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "display_driver.h"
 #include "display_utils.h"
 #include "py/runtime.h"
