@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include "freertos/Task.h"
 #include "freertos/FreeRTOS.h"
 #include "driver/i2s.h"
@@ -56,6 +57,9 @@ struct DisplayHandle {
     int *in_done_ptr;
 };
 
+// ChatGPT said I needed this fsr
+i2s_chan_handle_t tx_chan; 
+
 // Initialize GPIO
 void init_gpio() {
     gpio_config_t gpio_cfg = {
@@ -72,7 +76,6 @@ void init_gpio() {
 
 // Initialize I2S
 void init_i2s() {
-    i2s_chan_handle_t tx_chan;
     i2s_chan_config_t chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
     chan_cfg.dma_desc_num = 64;
     chan_cfg.dma_frame_num = 64;
@@ -136,10 +139,9 @@ void render_row(uint8_t row) {
     set_row(row);
     prep_bitplanes(row);
     for (int bit_depth = 0; bit_depth < COLOR_DEPTH; bit_depth ++) {
-        uint8_t *data = bitplane_buf[bit_depth];
         size_t bytes_written;
         gpio_set_level(OE, 1);
-        i2s_write(I2S_NUM_0, data, DISPLAY_WIDTH, &bytes_written, portMAX_DELAY);
+        i2s_write(I2S_NUM_0, bitplane_buf[bit_depth], DISPLAY_WIDTH, &bytes_written, portMAX_DELAY);
         gpio_set_level(LAT, 1);
         gpio_set_level(LAT, 0);
         gpio_set_level(OE, 0);
