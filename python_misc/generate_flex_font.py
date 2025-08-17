@@ -14,9 +14,9 @@ next_text = button_font.render("Next", True, (255, 255, 255))
 back_text = button_font.render("Back", True, (255, 255, 255))
 
 grid = [
+    [1, 1, 1, 1, 1],
     [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1],
     [0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0]
 ]
