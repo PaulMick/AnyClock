@@ -106,6 +106,7 @@ void fill_dislpay(uint8_t *frame_buf[DISPLAY_HEIGHT][DISPLAY_WIDTH][3], uint8_t 
 
 // TODO functions:
 // draw bmp img (bmp, x, y)
+// draw animation frame (animation bmps, time, x, y) -> done?: int (yes/no)
 
 int load_font(char *fname) {
     FILE * fp;

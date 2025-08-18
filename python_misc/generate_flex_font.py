@@ -34,7 +34,7 @@ font_name = "misc"
 
 # Pack each character bitmap into 4 bytes and write it to the file
 def write_font(grids: list[list[list[int]]], fname: str) -> None:
-    with open(f"python_misc/{font_name}.font", "wb") as f:
+    with open(f"python_misc/font_output/{font_name}.font", "wb") as f:
         for a in range(len(grids)):
             n = 0x00000000
             for bit in range(25):
