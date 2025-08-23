@@ -33,5 +33,6 @@ static mp_obj_t init(mp_obj_t disp_boot_screen) {
 }
 
 static mp_obj_t display_state_bytes(mp_obj_t bytes) {
-
+    // Clear previous screen
+    fill_display(display_handle.frame_buf_ptr, 0, 0, 0);
 }

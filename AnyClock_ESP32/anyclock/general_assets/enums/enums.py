@@ -9,7 +9,6 @@ MODE_FANTASY_FOOTBALL = "fantasy_football_mode"
 MODE_NBA_BASKETBALL = "nba_basketball_mode"
 MODE_NCAA_BASKETBALL = "ncaa_basketball_mode"
 
-
 # Input IDs
 INPUT_MENU = 0
 INPUT_SELECT = 1
