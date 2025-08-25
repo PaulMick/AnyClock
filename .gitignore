@@ -1,6 +1,7 @@
 # Environment variables
 .env
 anyclock.env
+secrets.py
 
 # Python virtual environment
 python-anyclock-env/

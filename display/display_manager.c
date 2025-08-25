@@ -4,7 +4,7 @@
 #include <time.h>
 #include "display_driver.h"
 #include "display_utils.h"
-#include "py/runtime.h"
+#include "py/dynruntime.h"
 #include "py/obj.h"
 #include "py/objstr.h"
 
@@ -30,9 +30,17 @@ static mp_obj_t init(mp_obj_t disp_boot_screen) {
     if (mp_obj_get_int(disp_boot_screen)) {
         // Boot screen animation here
     }
+
+    return mp_const_none;
 }
+
+static MP_DEFINE_CONST_FUN_OBJ_0(init_obj, init);
 
 static mp_obj_t display_state_bytes(mp_obj_t bytes) {
     // Clear previous screen
-    fill_display(display_handle.frame_buf_ptr, 0, 0, 0);
+    fill_display(display_handle.frame_buf_ptr, 100, 0, 0);
+
+    return mp_const_none;
 }
+
+static MP_DEFINE_CONST_FUN_OBJ_1(display_state_bytes_obj, display_state_bytes);
